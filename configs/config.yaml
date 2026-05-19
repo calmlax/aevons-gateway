@@ -1,0 +1,227 @@
+# 网关服务自身的监听配置
+server:
+  name: gateway-service
+  host: 192.168.0.102
+  port: 11080
+  mode: debug
+
+# Consul 配置：
+# - 用于服务注册与发现
+# - 用于读取限流等治理配置的 KV
+consul:
+  enabled: true
+  address: http://127.0.0.1:8500
+
+# 日志配置
+log:
+  level: info
+  console: true
+  file:
+    dir: logs
+    rotation:
+      max_size_mb: 100
+      max_backups: 10
+      max_age_days: 30
+      compress: false
+
+# 浏览器跨域配置。
+# 这里是网关统一处理，后端业务服务不再重复做一层 CORS。
+cors:
+  enabled: true
+  allowed_origins:
+    - "*"
+
+# 网关自身需要读数据库：
+# - oauth_client 资源规则回源
+# - 其他后续治理配置也可以复用
+db:
+  driver: mysql
+  dsn: root:123456@tcp(127.0.0.1:3306)/aevons_db?charset=utf8mb4&parseTime=True&loc=Asia%2FShanghai
+  max_open_conns: 20
+  max_idle_conns: 10
+  conn_max_lifetime_seconds: 3600
+  conn_max_idle_time_seconds: 1800
+
+# Redis 配置：
+# - oauth_client 资源缓存
+# - 限流计数
+# - 其他网关缓存能力
+redis:
+  mode: standalone
+  address: 127.0.0.1:6379
+  password: ""
+
+# XSS 入口清洗配置。
+# 这里是网关统一做第一层处理，业务服务只保留业务校验。
+xss:
+  enabled: true
+  excludes:
+    - /api/auth/v1/login
+    - /api/auth/v1/register
+    - /api/auth/v1/reset-password
+    - /api/auth/v1/passkey/register/finish
+    - /api/auth/v1/passkey/login/finish
+    - /api/sys/v1/conf/*
+    - /api/sys/v1/conf
+    - /api/sys/v1/menu/*
+    - /api/sys/v1/menu
+
+# 网关核心运行配置
+gateway:
+  # 可信代理列表。
+  # 如果网关前面还有 Nginx / SLB / Ingress，需要把对应代理地址配进来，
+  # 这样 ClientIP / X-Forwarded-For 才能正确解析。
+  trusted_proxies:
+    - 127.0.0.1
+  # 转发到下游服务的超时时间，单位：秒
+  timeout_seconds: 15
+  # 单请求允许的最大 body，单位：字节
+  max_body_bytes: 10485760
+  discovery:
+    # 服务发现本地缓存刷新周期，单位：秒。
+    # 网关热路径优先走本地缓存，避免每个请求直接打 Consul。
+    refresh_seconds: 3
+    # Consul 刷新失败时允许继续使用旧实例的时间窗口，单位：秒。
+    # 这个窗口内优先保证可用性，避免 Consul 短暂抖动直接放大成大面积 503。
+    stale_if_error_seconds: 30
+  rate_limit:
+    # 是否启用网关限流
+    enabled: true
+    # 当 Redis 或限流执行异常时是否放行
+    # true: 放行，优先可用性
+    # false: 拒绝，优先严格控制
+    fail_open: true
+    # Redis 限流计数 key 前缀
+    key_prefix: "gateway:rate-limit:"
+    # Consul KV 限流计数 key 前缀
+    consul_kv_key: config/gateway/rate-limit
+    default:
+      # 是否启用默认规则
+      enabled: false
+      # 限流维度，可组合。
+      # 可选枚举：
+      # - global: 整条规则共享一个计数桶，所有请求一起累计
+      # - service: 按目标服务分桶，例如 auth-service / sys-service
+      # - client: 按 OAuth client_id 分桶，未识别时记为 anonymous
+      # - user: 按登录用户分桶，未登录时记为 anonymous
+      # - ip: 按客户端 IP 分桶
+      # - path: 按请求路径分桶，例如 /api/auth/v1/login
+      # - method: 按 HTTP 方法分桶，例如 GET / POST
+      # 组合示例：
+      # - [ip] = 单 IP 限流
+      # - [client, ip] = 同一客户端下再按 IP 细分
+      # - [client, user] = 同一客户端下按登录用户细分
+      # - [service, method] = 按目标服务 + 请求方法细分
+      key_by:
+        - client
+        - ip
+      # 时间窗口内允许的最大请求数
+      limit: 600
+      # 时间窗口，单位：秒
+      window_seconds: 60
+      # 限流命中后的返回码和消息已在网关内部固定：
+      # - status_code = 429
+      # - message = gateway.rate_limit_exceeded
+
+# Swagger 聚合与 UI 配置
+swagger:
+  # 是否启用 Swagger 聚合接口
+  enabled: true
+  # 是否启用内置 Swagger UI 页面
+  ui_enabled: true
+  # 允许访问 Swagger UI 和聚合接口的来源 IP
+  allowed_ips:
+    - 127.0.0.1
+    - ::1
+    - 192.168.0.102
+  # 聚合展示的文档源。
+  # 实际文档地址会通过 service_id + Consul 服务发现 + path 动态解析。
+  docs:
+    - name: auth-service
+      service_id: auth-service
+      path: /api/swagger.json
+    - name: sys-service
+      service_id: sys-service
+      path: /api/swagger.json
+    - name: log-service
+      service_id: log-service
+      path: /api/swagger.json
+    - name: gen-service
+      service_id: gen-service
+      path: /api/swagger.json
+    - name: job-service
+      service_id: job-service
+      path: /api/swagger.json
+
+# 下游服务路由规则。
+# 网关会按 prefix 匹配请求，再通过 discovery 做服务发现和转发。
+services:
+  - id: auth
+    # Consul 中的真实服务名
+    name: auth-service
+    # 该服务负责的请求前缀
+    prefix: /api/auth/**
+    # 当前支持 consul 发现
+    discovery: consul
+    # 当前支持 round_robin
+    load_balance: round_robin
+    # 是否把原始 Authorization 透传给下游
+    pass_access_token: true
+    # 不走统一鉴权的公开接口白名单。
+    # 格式：METHOD:/path 或 METHOD:/prefix/**
+    exclude_auth_routes:
+      - GET:/api/auth/v1/ping
+      - GET:/api/auth/v1/public-key
+      - POST:/api/auth/v1/login
+      - POST:/api/auth/v1/refresh
+      - POST:/api/auth/v1/email/code
+      - POST:/api/auth/v1/register
+      - POST:/api/auth/v1/reset-password
+      - GET:/api/auth/v1/authorize
+      - POST:/api/auth/v1/authorize
+      - GET:/api/auth/v1/callback
+      - POST:/api/auth/v1/passkey/login/begin
+      - POST:/api/auth/v1/passkey/login/finish
+  - id: sys
+    name: sys-service
+    prefix: /api/sys/**
+    discovery: consul
+    load_balance: round_robin
+    pass_access_token: true
+    exclude_auth_routes:
+      - GET:/api/sys/v1/ping
+      - GET:/api/sys/v1/lang
+  - id: log
+    name: log-service
+    prefix: /api/log/**
+    discovery: consul
+    load_balance: round_robin
+    pass_access_token: true
+    exclude_auth_routes:
+      - GET:/api/log/v1/ping
+  - id: gen
+    name: gen-service
+    prefix: /api/gen/**
+    discovery: consul
+    load_balance: round_robin
+    pass_access_token: true
+    exclude_auth_routes:
+      - GET:/api/gen/v1/ping
+  - id: job
+    name: job-service
+    prefix: /api/job/**
+    discovery: consul
+    load_balance: round_robin
+    pass_access_token: true
+    exclude_auth_routes:
+      - GET:/api/job/v1/ping
+
+# 是否启用 oauth_client 资源校验流程。
+# 开启后会按 client_id -> Redis -> DB(sys_oauth_client.resources) 进行授权判断，
+# resources 推荐使用：
+# - ALL
+# - /api/sys/v1/conf/*
+# - /api/auth/v1/authorize
+# 其中路径规则支持精确路径和前缀路径。
+client_auth:
+  enabled: true

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aevons Gateway Service Swagger</title>
+    <link rel="stylesheet" href="./swagger-ui.css" />
+    <link rel="icon" type="image/png" href="./favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="./favicon-16x16.png" sizes="16x16" />
+    <style>
+      :root {
+        color-scheme: light;
+        --page-bg: linear-gradient(180deg, #eef4f8 0%, #ffffff 38%, #f5f0e8 100%);
+        --panel-bg: rgba(255, 255, 255, 0.9);
+        --border-color: rgba(25, 51, 77, 0.12);
+        --shadow-color: rgba(24, 44, 64, 0.12);
+        --title-color: #16324a;
+        --muted-color: #587086;
+        --accent-color: #0f766e;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background: var(--page-bg);
+        font-family: "Segoe UI", "PingFang SC", "Hiragino Sans GB", sans-serif;
+      }
+
+      body {
+        padding: 24px;
+      }
+
+      .page-shell {
+        max-width: 1440px;
+        margin: 0 auto;
+      }
+
+      .hero {
+        margin-bottom: 18px;
+        padding: 22px 24px;
+        border: 1px solid var(--border-color);
+        border-radius: 22px;
+        background: var(--panel-bg);
+        box-shadow: 0 24px 60px -36px var(--shadow-color);
+        backdrop-filter: blur(12px);
+      }
+
+      .hero h1 {
+        margin: 0 0 8px;
+        color: var(--title-color);
+        font-size: 30px;
+        line-height: 1.1;
+      }
+
+      .hero p {
+        margin: 0;
+        color: var(--muted-color);
+        font-size: 15px;
+      }
+
+      .hero-meta {
+        margin-top: 14px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .hero-pill {
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(15, 118, 110, 0.08);
+        color: var(--accent-color);
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .swagger-frame {
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 24px 60px -36px var(--shadow-color);
+      }
+
+      #swagger-ui {
+        min-height: calc(100vh - 220px);
+      }
+
+      .swagger-ui .topbar {
+        padding: 14px 18px;
+        background: linear-gradient(135deg, #16324a 0%, #0f766e 100%);
+      }
+
+      .swagger-ui .topbar .download-url-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .swagger-ui .topbar .download-url-wrapper label {
+        color: #ffffff;
+        font-weight: 700;
+      }
+
+      .swagger-ui .topbar select {
+        min-width: 280px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.14);
+        color: #ffffff;
+      }
+
+      .swagger-ui .topbar select option {
+        color: #16324a;
+      }
+
+      .swagger-ui .topbar .url {
+        display: none;
+      }
+
+      .swagger-ui .topbar .download-url-button {
+        display: none;
+      }
+
+      .loading,
+      .loading-error {
+        padding: 40px 24px;
+        color: var(--title-color);
+        font-size: 15px;
+      }
+
+      .loading-error {
+        color: #b42318;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-shell">
+      <section class="hero">
+        <h1>Aevons Gateway Service API Docs</h1>
+        <p>Unified Swagger UI for backend services routed through gateway.</p>
+        <div class="hero-meta" id="hero-meta">
+          <span class="hero-pill">Loading Swagger sources...</span>
+        </div>
+      </section>
+      <section class="swagger-frame">
+        <div id="swagger-ui">
+          <div class="loading">Loading Swagger UI...</div>
+        </div>
+      </section>
+    </div>
+
+    <script src="./swagger-ui-bundle.js"></script>
+    <script src="./swagger-ui-standalone-preset.js"></script>
+    <script>
+      async function bootSwagger() {
+        const uiRoot = document.getElementById("swagger-ui");
+        const heroMeta = document.getElementById("hero-meta");
+
+        try {
+          const resp = await fetch("/api/v1/gateway/swagger/sources", { credentials: "same-origin" });
+          if (!resp.ok) {
+            throw new Error("Failed to load Swagger sources: HTTP " + resp.status);
+          }
+
+          const payload = await resp.json();
+          const data = payload.data || {};
+          const sources = data.sources || [];
+
+          if (!sources.length) {
+            throw new Error("No Swagger sources configured.");
+          }
+
+          heroMeta.innerHTML = "";
+          sources.forEach((source) => {
+            const pill = document.createElement("span");
+            pill.className = "hero-pill";
+            pill.textContent = source.name + " -> " + source.proxy_url;
+            heroMeta.appendChild(pill);
+          });
+
+          window.ui = SwaggerUIBundle({
+            urls: sources.map((source) => ({
+              name: source.name,
+              url: source.proxy_url
+            })),
+            urlsPrimaryName: sources[0].name,
+            dom_id: "#swagger-ui",
+            deepLinking: true,
+            docExpansion: "list",
+            displayRequestDuration: true,
+            filter: true,
+            persistAuthorization: true,
+            presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+            layout: "StandaloneLayout"
+          });
+        } catch (error) {
+          console.error(error);
+          uiRoot.innerHTML = '<div class="loading-error">' + error.message + "</div>";
+        }
+      }
+
+      bootSwagger();
+    </script>
+  </body>
+</html>
