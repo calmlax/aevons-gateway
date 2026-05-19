@@ -18,8 +18,6 @@ github.com/calmlax/aevons-gateway/
 │   ├── router
 │   └── swagger
 ├── swagger-ui
-├── gateway-architecture.md
-├── gateway-implementation.md
 └── README.md
 ```
 
