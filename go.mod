@@ -1,4 +1,4 @@
-module github.com/calmlax/aevons-gateway
+module aevons-gateway
 
 go 1.25.0
 

@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/calmlax/aevons-gateway/internal/model"
+	"aevons-gateway/internal/model"
 
 	frameworkredis "github.com/calmlax/aevons-framework/redis"
 	goredis "github.com/redis/go-redis/v9"

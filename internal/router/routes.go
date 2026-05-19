@@ -5,19 +5,19 @@ import (
 	"net/http"
 	"time"
 
-	gatewayswagger "github.com/calmlax/aevons-gateway/internal/swagger"
+	gatewayswagger "aevons-gateway/internal/swagger"
 
-	"github.com/calmlax/aevons-gateway/internal/ratelimit"
+	"aevons-gateway/internal/ratelimit"
 
-	gatewayproxy "github.com/calmlax/aevons-gateway/internal/proxy"
+	gatewayproxy "aevons-gateway/internal/proxy"
 
-	"github.com/calmlax/aevons-gateway/internal/discovery"
+	"aevons-gateway/internal/discovery"
 
-	gatewayconfig "github.com/calmlax/aevons-gateway/internal/config"
+	gatewayconfig "aevons-gateway/internal/config"
 
-	gatewayclientauth "github.com/calmlax/aevons-gateway/internal/clientauth"
+	gatewayclientauth "aevons-gateway/internal/clientauth"
 
-	gatewayauth "github.com/calmlax/aevons-gateway/internal/auth"
+	gatewayauth "aevons-gateway/internal/auth"
 
 	"github.com/calmlax/aevons-framework/core"
 	frameworkconsul "github.com/calmlax/aevons-framework/core/consul"

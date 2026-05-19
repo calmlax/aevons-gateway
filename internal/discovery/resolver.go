@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/calmlax/aevons-gateway/internal/model"
+	"aevons-gateway/internal/model"
 
 	frameworkconsul "github.com/calmlax/aevons-framework/core/consul"
 	"golang.org/x/sync/singleflight"

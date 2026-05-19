@@ -10,9 +10,9 @@ package main
 import (
 	"os"
 
-	"github.com/calmlax/aevons-gateway/internal/router"
+	"aevons-gateway/internal/router"
 
-	gatewayconfig "github.com/calmlax/aevons-gateway/internal/config"
+	gatewayconfig "aevons-gateway/internal/config"
 
 	"github.com/calmlax/aevons-framework/core"
 	"github.com/calmlax/aevons-framework/xlog"

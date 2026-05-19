@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/calmlax/aevons-gateway/internal/model"
+	"aevons-gateway/internal/model"
 
 	frameworkconfig "github.com/calmlax/aevons-framework/config"
 	frameworkconsul "github.com/calmlax/aevons-framework/core/consul"

@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/calmlax/aevons-gateway/internal/model"
+	"aevons-gateway/internal/model"
 )
 
 type Resolver struct{}

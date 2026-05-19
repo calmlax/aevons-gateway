@@ -3,7 +3,7 @@ package gwcontext
 import (
 	"context"
 
-	"github.com/calmlax/aevons-gateway/internal/model"
+	"aevons-gateway/internal/model"
 
 	"github.com/gin-gonic/gin"
 )

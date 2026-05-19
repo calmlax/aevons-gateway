@@ -1,11 +1,11 @@
 # Aevons Gateway Service
 
-`github.com/calmlax/aevons-gateway` 是 Aevons 自研 HTTP 网关服务，负责统一接入、认证校验、客户端资源控制、Consul 服务发现转发，以及多服务 Swagger 聚合展示。
+`aevons-gateway` 是 Aevons 自研 HTTP 网关服务，负责统一接入、认证校验、客户端资源控制、Consul 服务发现转发，以及多服务 Swagger 聚合展示。
 
 ## 目录
 
 ```text
-github.com/calmlax/aevons-gateway/
+aevons-gateway/
 ├── cmd/server
 ├── configs
 ├── internal
@@ -99,14 +99,14 @@ gateway:
   rate_limit:
     enabled: true
     fail_open: true
-    key_prefix: github.com/calmlax/aevons-gateway:rate-limit:
-    consul_kv_key: config/github.com/calmlax/aevons-gateway/rate-limit
+    key_prefix: aevons:gateway:rate-limit:
+    consul_kv_key: config/gateway/rate-limit
 ```
 
 复杂规则建议放到 Consul KV，例如 key：
 
 ```text
-config/github.com/calmlax/aevons-gateway/rate-limit
+config/gateway/rate-limit
 ```
 
 value 内容可直接放 YAML：
@@ -114,7 +114,7 @@ value 内容可直接放 YAML：
 ```yaml
 enabled: true
 fail_open: true
-key_prefix: github.com/calmlax/aevons-gateway:rate-limit:
+key_prefix: aevons:gateway:rate-limit:
 default:
   enabled: true
   key_by: [client, ip]
@@ -248,7 +248,6 @@ ALL
 ## 启动
 
 ```bash
-cd aevons-cloud/github.com/calmlax/aevons-gateway
 go run ./cmd/server --config configs
 ```
 

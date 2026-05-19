@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/calmlax/aevons-gateway/internal/model"
+	"aevons-gateway/internal/model"
 
 	frameworkredis "github.com/calmlax/aevons-framework/redis"
 	"github.com/calmlax/aevons-framework/xlog"

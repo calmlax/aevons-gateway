@@ -8,21 +8,22 @@ import (
 	"strings"
 	"time"
 
-	gatewayauth "github.com/calmlax/aevons-gateway/internal/auth"
+	gatewayauth "aevons-gateway/internal/auth"
 
-	gatewayresp "github.com/calmlax/aevons-gateway/internal/response"
+	gatewayresp "aevons-gateway/internal/response"
 
-	"github.com/calmlax/aevons-gateway/internal/ratelimit"
+	"aevons-gateway/internal/ratelimit"
 
-	"github.com/calmlax/aevons-gateway/internal/model"
+	"aevons-gateway/internal/model"
 
-	"github.com/calmlax/aevons-gateway/internal/gwcontext"
+	"aevons-gateway/internal/gwcontext"
 
-	"github.com/calmlax/aevons-gateway/internal/discovery"
+	"aevons-gateway/internal/discovery"
+
+	"aevons-gateway/internal/clientauth"
 
 	"github.com/calmlax/aevons-framework/middleware"
 	"github.com/calmlax/aevons-framework/xlog"
-	"github.com/calmlax/aevons-gateway/internal/clientauth"
 	"github.com/gin-gonic/gin"
 )
 

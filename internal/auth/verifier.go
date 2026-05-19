@@ -9,8 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/calmlax/aevons-gateway/internal/discovery"
-	"github.com/calmlax/aevons-gateway/internal/model"
+	"aevons-gateway/internal/discovery"
+
+	"aevons-gateway/internal/model"
 
 	frameworkresp "github.com/calmlax/aevons-framework/response"
 	"github.com/gin-gonic/gin"

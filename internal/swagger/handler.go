@@ -9,13 +9,13 @@ import (
 	"strings"
 	"time"
 
-	gatewayresp "github.com/calmlax/aevons-gateway/internal/response"
+	gatewayresp "aevons-gateway/internal/response"
 
-	"github.com/calmlax/aevons-gateway/internal/model"
+	"aevons-gateway/internal/model"
 
-	"github.com/calmlax/aevons-gateway/internal/discovery"
+	"aevons-gateway/internal/discovery"
 
-	gatewayconfig "github.com/calmlax/aevons-gateway/internal/config"
+	gatewayconfig "aevons-gateway/internal/config"
 
 	frameworkresp "github.com/calmlax/aevons-framework/response"
 	"github.com/gin-gonic/gin"

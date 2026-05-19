@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/calmlax/aevons-gateway/internal/model"
+	"aevons-gateway/internal/model"
 )
 
 type ServiceMatcher struct {
