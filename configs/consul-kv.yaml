@@ -1,0 +1,39 @@
+# Consul KV 配置文件  consul_kv_key: config/gateway/rate-limit
+
+enabled: true
+fail_open: true
+key_prefix: "gateway-service:rate-limit:"
+
+default:
+  enabled: true
+  key_by: [client, ip]
+  limit: 600
+  window_seconds: 60
+
+rules:
+  - name: auth-login
+    enabled: true
+    services: [auth-service]
+    methods: [POST]
+    paths: [/api/v1/auth/login]
+    key_by: [ip, client]
+    limit: 20
+    window_seconds: 60
+
+  - name: auth-passkey-login-begin
+    enabled: true
+    services: [auth-service]
+    methods: [POST]
+    paths: [/api/v1/auth/passkey/login/begin]
+    key_by: [ip, client]
+    limit: 15
+    window_seconds: 60
+
+  - name: auth-authorize
+    enabled: true
+    services: [auth-service]
+    methods: [GET, POST]
+    paths: [/api/v1/auth/authorize]
+    key_by: [client, user]
+    limit: 120
+    window_seconds: 60
