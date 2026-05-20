@@ -15,7 +15,7 @@ rules:
     enabled: true
     services: [auth-service]
     methods: [POST]
-    paths: [/api/v1/auth/login]
+    paths: [/api/auth/v1/login]
     key_by: [ip, client]
     limit: 20
     window_seconds: 60
@@ -24,7 +24,7 @@ rules:
     enabled: true
     services: [auth-service]
     methods: [POST]
-    paths: [/api/v1/auth/passkey/login/begin]
+    paths: [/api/auth/v1/passkey/login/begin]
     key_by: [ip, client]
     limit: 15
     window_seconds: 60
@@ -33,7 +33,7 @@ rules:
     enabled: true
     services: [auth-service]
     methods: [GET, POST]
-    paths: [/api/v1/auth/authorize]
+    paths: [/api/auth/v1/authorize]
     key_by: [client, user]
     limit: 120
     window_seconds: 60

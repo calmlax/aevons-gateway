@@ -1,7 +1,7 @@
 # 网关服务自身的监听配置
 server:
   name: gateway-service
-  host: 192.168.0.102
+  host: 192.168.31.81
   port: 11080
   mode: debug
 
@@ -133,7 +133,7 @@ swagger:
   allowed_ips:
     - 127.0.0.1
     - ::1
-    - 192.168.0.102
+    - 192.168.31.81
   # 聚合展示的文档源。
   # 实际文档地址会通过 service_id + Consul 服务发现 + path 动态解析。
   docs:
